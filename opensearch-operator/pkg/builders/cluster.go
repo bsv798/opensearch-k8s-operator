@@ -470,7 +470,7 @@ func NewSTSForNodePool(
 							Env: []corev1.EnvVar{
 								{
 									Name:  "cluster.initial_master_nodes",
-									Value: BootstrapPodName(cr),
+									Value: InitialMasterNodes(cr),
 								},
 								{
 									Name:  "discovery.seed_hosts",
@@ -802,7 +802,7 @@ func NewBootstrapPod(
 	env := []corev1.EnvVar{
 		{
 			Name:  "cluster.initial_master_nodes",
-			Value: BootstrapPodName(cr),
+			Value: InitialMasterNodes(cr),
 		},
 		{
 			Name:  "discovery.seed_hosts",
@@ -1064,6 +1064,28 @@ func DiscoveryServiceName(cr *opsterv1.OpenSearchCluster) string {
 
 func BootstrapPodName(cr *opsterv1.OpenSearchCluster) string {
 	return fmt.Sprintf("%s-bootstrap-0", cr.Name)
+}
+
+func InitialMasterNodes(cr *opsterv1.OpenSearchCluster) string {
+	totalMasterReplicas := int32(0)
+	masterComponent := ""
+
+	for _, nodePool := range cr.Spec.NodePools {
+		masterRole := helpers.ResolveClusterManagerRole(cr.Spec.General.Version)
+		if helpers.ContainsString(helpers.MapClusterRoles(nodePool.Roles, cr.Spec.General.Version), masterRole) {
+			totalMasterReplicas += nodePool.Replicas
+
+			if masterComponent == "" {
+				masterComponent = nodePool.Component
+			}
+		}
+	}
+
+	if totalMasterReplicas == 1 {
+		return fmt.Sprintf("%s-%s-0", cr.Name, masterComponent)
+	} else {
+		return BootstrapPodName(cr)
+	}
 }
 
 func STSInNodePools(sts appsv1.StatefulSet, nodepools []opsterv1.NodePool) bool {
