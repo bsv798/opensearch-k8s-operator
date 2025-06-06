@@ -552,3 +552,13 @@ func DeleteDashboardsDeployment(k8sClient k8s.K8sClient, clusterName, clusterNam
 
 	return fmt.Errorf("failed to delete dashboards deployment for cluster %s", clusterName)
 }
+
+func ProtoForCluster(cr *opsterv1.OpenSearchCluster) string {
+	value, exists := cr.Spec.General.AdditionalConfig["plugins.security.disabled"]
+
+	if exists && value == "true" {
+		return "http"
+	} else {
+		return "https"
+	}
+}

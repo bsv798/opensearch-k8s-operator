@@ -164,6 +164,10 @@ func (r *SecurityconfigReconciler) Reconcile() (ctrl.Result, error) {
 	r.logger.Info("Starting securityconfig update job")
 	r.recorder.AnnotatedEventf(r.instance, annotations, "Normal", "Security", "Starting securityconfig update job")
 
+	if helpers.ProtoForCluster(r.instance) == "http" {
+		cmdArg = "echo 'Skip securityadmin for insecure cluster'"
+	}
+
 	job = builders.NewSecurityconfigUpdateJob(
 		r.instance,
 		jobName,

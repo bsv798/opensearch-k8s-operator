@@ -213,7 +213,8 @@ func CreateAdditionalVolumes(
 
 func OpensearchClusterURL(cluster *opsterv1.OpenSearchCluster) string {
 	return fmt.Sprintf(
-		"https://%s.%s.svc.%s:%v",
+		"%s://%s.%s.svc.%s:%v",
+		helpers.ProtoForCluster(cluster),
 		cluster.Spec.General.ServiceName,
 		cluster.Namespace,
 		helpers.ClusterDnsBase(),
