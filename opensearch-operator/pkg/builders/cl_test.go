@@ -133,3 +133,39 @@ func TestAdd7(t *testing.T) {
 	result := NewBootstrapPod(&clusterObject, nil, nil)
 	Expect(result.Spec.InitContainers[0].Image).To(Equal("mycustomrepo.cr/busybox:latest"))
 }
+
+func TestAdd8(t *testing.T) {
+	mockKey := "server.basePath"
+
+	mockConfig := map[string]string{
+		mockKey: "/opensearch-operated",
+	}
+	clusterObject := ClusterDescWithAdditionalConfigs(mockConfig, nil)
+	result := NewSTSForNodePool("foobar", &clusterObject, opsterv1.NodePool{}, "foobar", nil, nil, nil)
+
+	Expect(result.Spec.Template.Spec.PriorityClassName).To(Equal("default"))
+}
+
+func TestAdd9(t *testing.T) {
+	mockKey := "plugins.security.disabled"
+
+	mockConfig := map[string]string{
+		mockKey: "/opensearch-operated",
+	}
+	clusterObject := ClusterDescWithAdditionalConfigs(mockConfig, nil)
+	result := NewSTSForNodePool("foobar", &clusterObject, opsterv1.NodePool{}, "foobar", nil, nil, nil)
+
+	Expect(result.Spec.Template.Spec.PriorityClassName).To(Equal("default"))
+}
+
+func TestAdd10(t *testing.T) {
+	mockKey := "plugins.security.disabled"
+
+	mockConfig := map[string]string{
+		mockKey: "true",
+	}
+	clusterObject := ClusterDescWithAdditionalConfigs(mockConfig, nil)
+	result := NewSTSForNodePool("foobar", &clusterObject, opsterv1.NodePool{}, "foobar", nil, nil, nil)
+
+	Expect(result.Spec.Template.Spec.PriorityClassName).To(Equal("default"))
+}
